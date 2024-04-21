@@ -1,14 +1,20 @@
-import { Button, Flex, Text } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/api/notification";
+import { Button, Flex, Text } from "@chakra-ui/react"
+import { useEffect, useState } from "react"
+import {
+  isPermissionGranted,
+  requestPermission,
+  sendNotification
+} from "@tauri-apps/api/notification"
 
-import { ask } from "@tauri-apps/api/dialog";
+import { ask } from "@tauri-apps/api/dialog"
 
-{/* TODO: Add a section for the user to include a Spotify token */}
+{
+  /* TODO: Add a section for the user to include a Spotify token */
+}
 
 function App() {
-  const [time, setTime] = useState(0);
-  const [timerStart, setTimerStart] = useState(false);
+  const [time, setTime] = useState(0)
+  const [timerStart, setTimerStart] = useState(false)
 
   const buttons = [
     {
@@ -23,60 +29,64 @@ function App() {
       value: 3600, // seconds
       display: "60 Minutes"
     }
-  ];
+  ]
 
   const toggleTimer = () => {
-    setTimerStart(!timerStart);
-  };
+    setTimerStart(!timerStart)
+  }
 
   const triggerResetDialog = async () => {
     let shouldReset = await ask("Reset timer?", {
       title: "PomoFusion",
       type: "warning"
-    });
+    })
 
     if (shouldReset) {
-      setTime(900);
-      setTimerStart(false);
+      setTime(900)
+      setTimerStart(false)
     }
-  };
+  }
 
-  {/*
+  {
+    /*
     For some reason, notifications only work when building the applications. This means development won't work.
 
     npm run tauri build
-  */}
+  */
+  }
   const isPermitted = async () => {
-    let permissionGranted = await isPermissionGranted();
+    let permissionGranted = await isPermissionGranted()
 
     if (!permissionGranted) {
-      const permission = await requestPermission();
-      permissionGranted = permission === 'granted';
+      const permission = await requestPermission()
+      permissionGranted = permission === "granted"
     }
 
     if (permissionGranted) {
       sendNotification({
         title: "Time's up!",
         body: "Session complete"
-      });
+      })
     }
   }
 
-  useEffect (() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       if (timerStart) {
         if (time > 0) {
-          setTime(time - 1);
+          setTime(time - 1)
         } else if (time == 0) {
-          isPermitted();
-          {/* TODO: Stop playing Spotify song */}
-          clearInterval(interval);
+          isPermitted()
+          {
+            /* TODO: Stop playing Spotify song */
+          }
+          clearInterval(interval)
         }
       }
-    }, 1000);
+    }, 1000)
 
-    return () => clearInterval(interval);
-  }, [timerStart, time]);
+    return () => clearInterval(interval)
+  }, [timerStart, time])
 
   return (
     <div className="App" style={{ height: "100%" }}>
@@ -91,11 +101,10 @@ function App() {
         </Text>
         <Text fontWeight="bold" fontSize="7xl" color="white">
           {`${
-              Math.floor(time / 60) < 10
+            Math.floor(time / 60) < 10
               ? `0${Math.floor(time / 60)}`
               : `${Math.floor(time / 60)}`
-            } : ${time % 60 < 10 ? `0${time % 60}` : time % 60}`
-          }
+          } : ${time % 60 < 10 ? `0${time % 60}` : time % 60}`}
         </Text>
         <Flex>
           <Button
@@ -119,15 +128,15 @@ function App() {
           </Button>
         </Flex>
         <Flex marginTop={10}>
-          {buttons.map(({value, display}) => (
+          {buttons.map(({ value, display }) => (
             <Button
               marginX={4}
               background="#E53265" // green.300
               color="white"
               _hover={{ bg: "#000000", border: "1px solid #E53265" }}
               onClick={() => {
-                setTimerStart(false);
-                setTime(value);
+                setTimerStart(false)
+                setTime(value)
               }}
             >
               {display}
@@ -138,7 +147,7 @@ function App() {
         {/* TODO: Add Spotify integration visual here */}
       </Flex>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
