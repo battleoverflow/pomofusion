@@ -1,0 +1,21 @@
+[package]
+name = "pomofusion"
+version = "0.1.0"
+description = "Pomodoro timer with automatic Spotify controls."
+authors = ["battleoverflow"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1", features = [] }
+
+[dependencies]
+tauri = { version = "1", features = [ "notification-all", "dialog-all", "shell-open"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri-plugin-positioner = { version = "1.0.4", features = ["system-tray"] }
+
+[features]
+# This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]
