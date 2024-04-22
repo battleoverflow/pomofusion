@@ -33,6 +33,12 @@ function App() {
 
   const toggleTimer = () => {
     setTimerStart(!timerStart)
+
+    if (!timerStart) {
+      notifyUser("play")
+    } else {
+      notifyUser("pause")
+    }
   }
 
   const triggerResetDialog = async () => {
@@ -50,11 +56,10 @@ function App() {
   {
     /*
     For some reason, notifications only work when building the applications. This means development won't work.
-
     npm run tauri build
   */
   }
-  const isPermitted = async () => {
+  const notifyUser = async (timerStatus: string) => {
     let permissionGranted = await isPermissionGranted()
 
     if (!permissionGranted) {
@@ -63,11 +68,26 @@ function App() {
     }
 
     if (permissionGranted) {
-      sendNotification({
-        title: "Time's up!",
-        body: "Session complete"
-      })
+      if (timerStatus == "play") {
+        playSpotify()
+      }
+
+      if (timerStatus == "pause") {
+        pauseSpotify()
+      }
     }
+  }
+
+  const pauseSpotify = () => {
+    sendNotification({
+      title: "Spotify Paused"
+    })
+  }
+
+  const playSpotify = () => {
+    sendNotification({
+      title: "Spotify Playing"
+    })
   }
 
   useEffect(() => {
@@ -76,10 +96,7 @@ function App() {
         if (time > 0) {
           setTime(time - 1)
         } else if (time == 0) {
-          isPermitted()
-          {
-            /* TODO: Stop playing Spotify song */
-          }
+          notifyUser("pause")
           clearInterval(interval)
         }
       }
@@ -101,9 +118,11 @@ function App() {
         </Text>
         <Text fontWeight="bold" fontSize="7xl" color="white">
           {`${
+            // If the timer is less than 10, make sure to add an extra 0
             Math.floor(time / 60) < 10
               ? `0${Math.floor(time / 60)}`
-              : `${Math.floor(time / 60)}`
+              : // No need for the 0 here
+                `${Math.floor(time / 60)}`
           } : ${time % 60 < 10 ? `0${time % 60}` : time % 60}`}
         </Text>
         <Flex>
@@ -114,7 +133,6 @@ function App() {
             onClick={toggleTimer}
             _hover={{ bg: "#000000", border: "1px solid #E53265" }}
           >
-            {/* TODO: Stop playing Spotify song if paused */}
             {!timerStart ? "Start" : "Pause"}
           </Button>
           <Button
@@ -131,7 +149,7 @@ function App() {
           {buttons.map(({ value, display }) => (
             <Button
               marginX={4}
-              background="#E53265" // green.300
+              background="#E53265"
               color="white"
               _hover={{ bg: "#000000", border: "1px solid #E53265" }}
               onClick={() => {
@@ -143,8 +161,7 @@ function App() {
             </Button>
           ))}
         </Flex>
-
-        {/* TODO: Add Spotify integration visual here */}
+        <Flex>{/* TODO: Add Spotify integration visual here */}</Flex>
       </Flex>
     </div>
   )
