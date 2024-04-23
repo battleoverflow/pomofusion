@@ -47,10 +47,10 @@ function App() {
 
     if (!timerStart) {
       playSpotify()
-      notifyUser("play")
+      notifyUser("Playing Spotify", "")
     } else {
       pauseSpotify()
-      notifyUser("pause")
+      notifyUser("Paused Spotify", "")
     }
   }
 
@@ -64,35 +64,55 @@ function App() {
       setTime(900)
       setTimerStart(false)
       pauseSpotify()
-      notifyUser("pause")
+      notifyUser("Paused Spotify", "")
     }
   }
 
   const getActiveDeviceId = async (): Promise<string> => {
     const devices = await api.player.getAvailableDevices()
+
+    if (devices === null) {
+      notifyUser(
+        "Unable to locate session",
+        "Please play a few seconds of any track. This should help Spotify locate your session."
+      )
+    }
+
     const activeDevice = devices.devices.find((device) => device.is_active)!
     return activeDevice.id!
   }
 
   const pauseSpotify = async (): Promise<void> => {
-    if ((await api.player.getPlaybackState()).is_playing) {
+    const spotifyPlaybackState = await api.player.getPlaybackState()
+
+    if (spotifyPlaybackState === null) {
+      notifyUser(
+        "Unable to locate playback",
+        "Please play a few seconds of any track. This should help Spotify locate your session."
+      )
+    }
+
+    if (spotifyPlaybackState.is_playing) {
       await api.player.pausePlayback(await getActiveDeviceId())
     }
   }
 
   const playSpotify = async (): Promise<void> => {
-    if (!(await api.player.getPlaybackState()).is_playing) {
+    const spotifyPlaybackState = await api.player.getPlaybackState()
+
+    if (spotifyPlaybackState === null) {
+      notifyUser(
+        "Unable to locate playback",
+        "Please play a few seconds of any track. This should help Spotify locate your session."
+      )
+    }
+
+    if (!spotifyPlaybackState.is_playing) {
       await api.player.startResumePlayback(await getActiveDeviceId())
     }
   }
 
-  {
-    /*
-    For some reason, notifications only work when building the applications. This means development won't work.
-    npm run tauri build
-  */
-  }
-  const notifyUser = async (timerStatus: string) => {
+  const notificationsPermitted = async (): Promise<boolean> => {
     let permissionGranted = await isPermissionGranted()
 
     if (!permissionGranted) {
@@ -101,17 +121,18 @@ function App() {
     }
 
     if (permissionGranted) {
-      if (timerStatus == "play") {
-        sendNotification({
-          title: "Spotify Playing"
-        })
-      }
+      return true
+    }
 
-      if (timerStatus == "pause") {
-        sendNotification({
-          title: "Spotify Paused"
-        })
-      }
+    return false
+  }
+
+  const notifyUser = async (title: string, body: string) => {
+    if (await notificationsPermitted()) {
+      sendNotification({
+        title: title,
+        body: body
+      })
     }
   }
 
@@ -122,7 +143,7 @@ function App() {
           setTime(time - 1)
         } else if (time == 0) {
           pauseSpotify()
-          notifyUser("pause")
+          notifyUser("Paused Spotify", "")
           clearInterval(interval)
         }
       }
