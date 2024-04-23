@@ -21,6 +21,11 @@
       },
       "dialog": {
         "all": true
+      },
+      "http": {
+        "all": true,
+        "request": true,
+        "scope": ["http://localhost/*", "https://*.spotify.com/*"]
       }
     },
     "windows": [

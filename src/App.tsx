@@ -8,9 +8,20 @@ import {
 
 import { ask } from "@tauri-apps/api/dialog"
 
+import { SpotifyApi } from "@spotify/web-api-ts-sdk"
+
 {
   /* TODO: Add a section for the user to include a Spotify token */
 }
+
+const CLIENT_ID = ""
+const CLIENT_SECRET = ""
+const REDIRECT_URI = "http://localhost:1420/callback"
+
+const api = SpotifyApi.withUserAuthorization(CLIENT_ID, REDIRECT_URI, [
+  "user-read-playback-state",
+  "user-modify-playback-state"
+])
 
 function App() {
   const [time, setTime] = useState(0)
@@ -53,6 +64,30 @@ function App() {
     }
   }
 
+  // FIX: All Spotify related code for playback is working, but for some reason, it still can't find all of the available devices automatically
+  // If you add the device ID manually, it works fine
+  const getActiveDeviceId = async (): Promise<string> => {
+    const devices = await api.player.getAvailableDevices()
+    const activeDevice = devices.devices.find((device) => device.is_active)!
+    return activeDevice.id!
+  }
+
+  const pauseSpotify = async (): Promise<void> => {
+    sendNotification({
+      title: "Spotify Paused"
+    })
+
+    await api.player.pausePlayback(await getActiveDeviceId())
+  }
+
+  const playSpotify = async (): Promise<void> => {
+    sendNotification({
+      title: "Spotify Playing"
+    })
+
+    await api.player.startResumePlayback(await getActiveDeviceId())
+  }
+
   {
     /*
     For some reason, notifications only work when building the applications. This means development won't work.
@@ -76,18 +111,6 @@ function App() {
         pauseSpotify()
       }
     }
-  }
-
-  const pauseSpotify = () => {
-    sendNotification({
-      title: "Spotify Paused"
-    })
-  }
-
-  const playSpotify = () => {
-    sendNotification({
-      title: "Spotify Playing"
-    })
   }
 
   useEffect(() => {
