@@ -1,8 +1,17 @@
+<div align="center"><img src="assets/icon.png" width="50%"></div>
+
 # PomoFusion
 
 A simple Pomodoro timer with a Spotify integration.
 
 Currently, PomoFusion only support playback controls with no other functionality. This means while the playback is controlled automatically, things such as shuffling, changing the current playing track, etc. must be modified in the Slack application.
+
+## How to Authenticate
+
+Create a `spotify.json` file under `/opt/pomofusion` and add your credentials into the file. If you need any help, check out the `spotify.json` example file to know which variables to include.
+
+> [!NOTE]
+> The spotify.json must be configured exactly like the example. All keys must be present for the Spotify API to work properly.
 
 ## FAQ / Help Guide
 
@@ -17,4 +26,9 @@ Currently, PomoFusion only support playback controls with no other functionality
 > ### I'm not receiving any notifications from PomoFusion. What's wrong?
 >
 > First, make sure you've alloted the proper permissions for the application. I've attached a screenshot below.
-> <img src="pomofusion_notifs.png">
+>
+> <div align="center"><img src="assets/macos_notifications_example.png" width="50%"></div>
+
+### Copyright
+
+The PomoFusion "logo" belongs to Yu-Gi-Oh and Konami, respectively. No monetary gain will ever be generated directly from PomoFusion while this image is associated with the project.

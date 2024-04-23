@@ -1,4 +1,4 @@
-import { Button, Flex, Text } from "@chakra-ui/react"
+import { Button, Flex, Text, Image } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import {
   isPermissionGranted,
@@ -7,16 +7,17 @@ import {
 } from "@tauri-apps/api/notification"
 
 import { ask } from "@tauri-apps/api/dialog"
-
 import { SpotifyApi } from "@spotify/web-api-ts-sdk"
 
-{
-  /* TODO: Add a section for the user to include a Spotify token */
-}
+// import { invoke } from '@tauri-apps/api/tauri'
 
 const CLIENT_ID = ""
 const CLIENT_SECRET = ""
-const REDIRECT_URI = "http://localhost:1420/callback"
+const REDIRECT_URI = ""
+
+// const CLIENT_ID = await invoke("get_client_id").then((client_id) => { return client_id; })
+// const CLIENT_SECRET = await invoke("get_client_secret").then((client_secret) => { return client_secret; })
+// const REDIRECT_URI = await invoke("get_redirect_uri").then((redirect_uri) => { return redirect_uri; })
 
 const api = SpotifyApi.withUserAuthorization(CLIENT_ID, REDIRECT_URI, [
   "user-read-playback-state",
@@ -160,7 +161,8 @@ function App() {
         alignItems="center"
         flexDirection="column"
       >
-        <Text color="white" fontWeight="bold" marginTop="20" fontSize="35">
+        <Image src="icon.png" width="20%" marginTop="10" />
+        <Text color="white" fontWeight="bold" marginTop="2" fontSize="35">
           PomoFusion
         </Text>
         <Text fontWeight="bold" fontSize="7xl" color="white">

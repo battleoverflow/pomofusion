@@ -28,13 +28,21 @@
         "scope": ["http://localhost/*", "https://*.spotify.com/*"]
       }
     },
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "pomofusion",
         "fullscreen": false,
         "height": 600,
-        "resizable": true,
-        "width": 800
+        "width": 800,
+        "resizable": false,
+        "visible": false,
+        "hiddenTitle": false,
+        "decorations": false,
+        "focus": false,
+        "transparent": true,
+        "skipTaskbar": true,
+        "alwaysOnTop": true
       }
     ],
     "security": {
@@ -44,13 +52,11 @@
       "active": true,
       "targets": "all",
       "identifier": "com.battleoverflow.pomofusion",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
+      "icon": ["icons/icon.icns", "icons/icon.png"]
+    },
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
     }
   }
 }
