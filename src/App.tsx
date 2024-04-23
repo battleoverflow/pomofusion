@@ -46,8 +46,10 @@ function App() {
     setTimerStart(!timerStart)
 
     if (!timerStart) {
+      playSpotify()
       notifyUser("play")
     } else {
+      pauseSpotify()
       notifyUser("pause")
     }
   }
@@ -61,11 +63,11 @@ function App() {
     if (shouldReset) {
       setTime(900)
       setTimerStart(false)
+      pauseSpotify()
+      notifyUser("pause")
     }
   }
 
-  // FIX: All Spotify related code for playback is working, but for some reason, it still can't find all of the available devices automatically
-  // If you add the device ID manually, it works fine
   const getActiveDeviceId = async (): Promise<string> => {
     const devices = await api.player.getAvailableDevices()
     const activeDevice = devices.devices.find((device) => device.is_active)!
@@ -73,19 +75,15 @@ function App() {
   }
 
   const pauseSpotify = async (): Promise<void> => {
-    sendNotification({
-      title: "Spotify Paused"
-    })
-
-    await api.player.pausePlayback(await getActiveDeviceId())
+    if ((await api.player.getPlaybackState()).is_playing) {
+      await api.player.pausePlayback(await getActiveDeviceId())
+    }
   }
 
   const playSpotify = async (): Promise<void> => {
-    sendNotification({
-      title: "Spotify Playing"
-    })
-
-    await api.player.startResumePlayback(await getActiveDeviceId())
+    if (!(await api.player.getPlaybackState()).is_playing) {
+      await api.player.startResumePlayback(await getActiveDeviceId())
+    }
   }
 
   {
@@ -104,11 +102,15 @@ function App() {
 
     if (permissionGranted) {
       if (timerStatus == "play") {
-        playSpotify()
+        sendNotification({
+          title: "Spotify Playing"
+        })
       }
 
       if (timerStatus == "pause") {
-        pauseSpotify()
+        sendNotification({
+          title: "Spotify Paused"
+        })
       }
     }
   }
@@ -119,6 +121,7 @@ function App() {
         if (time > 0) {
           setTime(time - 1)
         } else if (time == 0) {
+          pauseSpotify()
           notifyUser("pause")
           clearInterval(interval)
         }
@@ -178,6 +181,7 @@ function App() {
               onClick={() => {
                 setTimerStart(false)
                 setTime(value)
+                pauseSpotify()
               }}
             >
               {display}
