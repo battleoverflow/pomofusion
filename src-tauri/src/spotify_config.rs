@@ -14,6 +14,7 @@ fn parse_config() -> (String, String, String) {
     let client_secret = &json_parse["SpotifyData"]["CLIENT_SECRET"];
     let redirect_uri = &json_parse["SpotifyData"]["REDIRECT_URI"];
 
+    // Return all values as cloned strings to use on the frontend
     return (client_id.to_owned().to_string(), client_secret.to_owned().to_string(), redirect_uri.to_owned().to_string())
 }
 

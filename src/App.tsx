@@ -12,6 +12,7 @@ import { SpotifyApi } from "@spotify/web-api-ts-sdk"
 import { invoke } from '@tauri-apps/api/tauri'
 
 const getSpotifyAuth = async (method: String) => {
+  // Grab the Spotify credentials from Rust, then convert the Rust string to a TypeScript string and trim the quotations
   return (await invoke(`get_${method}`).then((auth_type) => String(auth_type))).replace(/['"]+/g, '')
 }
 
@@ -39,42 +40,56 @@ function App() {
     }
   ]
 
+  // Set the timer with the provided values
+  // This also handles some Spotify callbacks and notifications for the aforementioned callbacks
+  // This function only runs onClick, so it should never run more than a single time
   const toggleTimer = () => {
     setTimerStart(!timerStart)
 
     if (!timerStart) {
+      // Play Spotify if the timer is active
       playSpotify()
       notifyUser("Playing Spotify", "")
     } else {
+      // Pause Spotify if the timer is any other state
       pauseSpotify()
       notifyUser("Paused Spotify", "")
     }
   }
 
+  // If you'd like to reset the timer, this will pop up with a confirmation and reset accordingly
   const triggerResetDialog = async () => {
     let shouldReset = await ask("Reset timer?", {
       title: "PomoFusion",
       type: "warning"
     })
-
     if (shouldReset) {
+      // Reset the timer to 15 minutes
       setTime(900)
       setTimerStart(false)
+
+      // Pause all Spotify playback during this time + notify the user
       pauseSpotify()
       notifyUser("Paused Spotify", "")
     }
   }
 
+  // Attempt to locate the active device that Spotify is running on
+  // This should more appropiately be referred to as "session" for our use case since we primarily focus on the machine being used with PomoFusion
   const getActiveDeviceId = async (): Promise<string> => {
     const devices = await api.player.getAvailableDevices()
 
+    // If the not devices are found, Spotify's API is being kinda wonky
+    // You'll need to either locate your Spotify client and press for a second or it mean you need to authenticate
+    // If you need to authenticate, a seperate window should pop up with a login prompt
     if (devices === null) {
       notifyUser(
         "Unable to locate session",
-        "Please play a few seconds of any track. This should help Spotify locate your session or authenticate with Spotify."
+        "Please play a few seconds of any track. This should help Spotify locate your session. Or authenticate with Spotify."
       )
     }
 
+    // We just need the ID, so as long as a device is found, we can use it
     const activeDevice = devices.devices.find((device) => device.is_active)!
     return activeDevice.id!
   }
@@ -82,13 +97,15 @@ function App() {
   const pauseSpotify = async (): Promise<void> => {
     const spotifyPlaybackState = await api.player.getPlaybackState()
 
+    // We do this to make sure the playback state of Spotify is not already paused
     if (spotifyPlaybackState === null) {
       notifyUser(
         "Unable to locate playback",
-        "Please play a few seconds of any track. This should help Spotify locate your session or authenticate with Spotify."
+        "Please play a few seconds of any track. This should help Spotify locate your session. Or authenticate with Spotify."
       )
     }
 
+    // If the playback state is currently playing, we can pause it
     if (spotifyPlaybackState.is_playing) {
       await api.player.pausePlayback(await getActiveDeviceId())
     }
@@ -97,18 +114,21 @@ function App() {
   const playSpotify = async (): Promise<void> => {
     const spotifyPlaybackState = await api.player.getPlaybackState()
 
+    // We do this to make sure the playback state of Spotify is not already playing
     if (spotifyPlaybackState === null) {
       notifyUser(
         "Unable to locate playback",
-        "Please play a few seconds of any track. This should help Spotify locate your session or authenticate with Spotify."
+        "Please play a few seconds of any track. This should help Spotify locate your session. Or authenticate with Spotify."
       )
     }
 
+    // If the playback state is currently playing, we can play
     if (!spotifyPlaybackState.is_playing) {
       await api.player.startResumePlayback(await getActiveDeviceId())
     }
   }
 
+  // We just need to verify that the permissions are granted for the notifications
   const notificationsPermitted = async (): Promise<boolean> => {
     let permissionGranted = await isPermissionGranted()
 
@@ -124,6 +144,7 @@ function App() {
     return false
   }
 
+  // Simple notification funciton for use across the entire app
   const notifyUser = async (title: string, body: string) => {
     if (await notificationsPermitted()) {
       sendNotification({
@@ -134,6 +155,8 @@ function App() {
   }
 
   useEffect(() => {
+    // Timer interval, this is main timer section for the project
+    // Nothing too complicated, it mainly just runs the entire interval until a condition or met or the timer is 0
     const interval = setInterval(() => {
       if (timerStart) {
         if (time > 0) {
@@ -146,6 +169,7 @@ function App() {
       }
     }, 1000)
 
+    // Clear the timer
     return () => clearInterval(interval)
   }, [timerStart, time])
 
