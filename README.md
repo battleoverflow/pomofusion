@@ -3,14 +3,14 @@
 
 A simple Pomodoro timer with a Spotify integration.
 
-Currently, PomoFusion only support playback controls with no other functionality. This means while the playback is controlled automatically, things such as shuffling, changing the current playing track, etc. must be modified in the Slack application.
+PomoFusion only supports playback controls with no other functionality. This means while the playback is controlled automatically, things such as shuffling, changing the current playing track, etc. must be modified in the Slack application.
 
 > [!IMPORTANT]
 > PomoFusion is operational, but unfortunately, the application does not work in a release state. I believe this is due to the Spotify API callback functionality and Tauri no longer utilizing the localhost address that it uses during development. I will mess with this more later when I can, but for now, if you follow the build instructions below, you can run the application locally.
 
 ## How to Authenticate
 
-Create a `spotify.json` file under `/opt/pomofusion` and add your credentials into the file. If you need any help, check out the `spotify.json` example file to know which variables to include.
+Create a `spotify.json` file under `/opt/pomofusion` and add your credentials to the file. If you need any help, check out the `spotify.json` example file to know which variables to include.
 
 > [!NOTE]
 > The spotify.json must be configured exactly like the example. All keys must be present for the Spotify API to work properly.
