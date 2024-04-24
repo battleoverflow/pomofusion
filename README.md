@@ -1,4 +1,4 @@
-<div align="center"><img src="assets/icon.png" width="20%"></div>
+<div align="center"><img src="assets/icon.png" width="25%"></div>
 <div align="center"><h1>PomoFusion</h1></div>
 
 A simple Pomodoro timer with a Spotify integration.

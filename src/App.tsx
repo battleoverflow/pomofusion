@@ -9,17 +9,13 @@ import {
 import { ask } from "@tauri-apps/api/dialog"
 import { SpotifyApi } from "@spotify/web-api-ts-sdk"
 
-// import { invoke } from '@tauri-apps/api/tauri'
+import { invoke } from '@tauri-apps/api/tauri'
 
-const CLIENT_ID = ""
-const CLIENT_SECRET = ""
-const REDIRECT_URI = ""
+const getSpotifyAuth = async (method: String) => {
+  return (await invoke(`get_${method}`).then((auth_type) => String(auth_type))).replace(/['"]+/g, '')
+}
 
-// const CLIENT_ID = await invoke("get_client_id").then((client_id) => { return client_id; })
-// const CLIENT_SECRET = await invoke("get_client_secret").then((client_secret) => { return client_secret; })
-// const REDIRECT_URI = await invoke("get_redirect_uri").then((redirect_uri) => { return redirect_uri; })
-
-const api = SpotifyApi.withUserAuthorization(CLIENT_ID, REDIRECT_URI, [
+const api = SpotifyApi.withUserAuthorization(await getSpotifyAuth("client_id"), await getSpotifyAuth("redirect_uri"), [
   "user-read-playback-state",
   "user-modify-playback-state"
 ])
@@ -75,7 +71,7 @@ function App() {
     if (devices === null) {
       notifyUser(
         "Unable to locate session",
-        "Please play a few seconds of any track. This should help Spotify locate your session."
+        "Please play a few seconds of any track. This should help Spotify locate your session or authenticate with Spotify."
       )
     }
 
@@ -89,7 +85,7 @@ function App() {
     if (spotifyPlaybackState === null) {
       notifyUser(
         "Unable to locate playback",
-        "Please play a few seconds of any track. This should help Spotify locate your session."
+        "Please play a few seconds of any track. This should help Spotify locate your session or authenticate with Spotify."
       )
     }
 
@@ -104,7 +100,7 @@ function App() {
     if (spotifyPlaybackState === null) {
       notifyUser(
         "Unable to locate playback",
-        "Please play a few seconds of any track. This should help Spotify locate your session."
+        "Please play a few seconds of any track. This should help Spotify locate your session or authenticate with Spotify."
       )
     }
 
